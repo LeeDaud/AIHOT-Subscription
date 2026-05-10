@@ -58,9 +58,6 @@ router.get('/data/evening', (req, res) => {
   res.render('data', { type: '晚报', key: `items:selected:${today}`, data: data ? JSON.stringify(data, null, 2) : '(无缓存)' });
 });
 
-// Health check
-router.get('/health', (_req, res) => res.json({ status: 'ok' }));
-
 function getDateStr(offset: number): string {
   const d = new Date();
   d.setDate(d.getDate() + offset);

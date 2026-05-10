@@ -14,6 +14,10 @@ export function createApp(db: Database.Database, transporter: nodemailer.Transpo
 
   app.use(express.urlencoded({ extended: true }));
   app.use(express.json());
+
+  // Health check - public, no auth
+  app.get('/health', (_req, res) => res.json({ status: 'ok' }));
+
   app.use(createAuthMiddleware(config.admin.user, config.admin.pass));
 
   app.set('view engine', 'ejs');

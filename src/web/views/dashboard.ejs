@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AIHOT Mail · Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background: #f0f2f5; color: #333; padding: 24px; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .header h1 { font-size: 20px; }
+    .header h1 span { color: #e94560; }
+    .nav { display: flex; gap: 8px; }
+    .nav a { color: #1a73e8; text-decoration: none; font-size: 13px; padding: 4px 10px; border-radius: 4px; }
+    .nav a:hover { background: #e8f0fe; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .card { background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+    .card-label { font-size: 12px; color: #888; margin-bottom: 4px; text-transform: uppercase; letter-spacing: .5px; }
+    .card-value { font-size: 28px; font-weight: 700; }
+    .card-value.green { color: #34a853; }
+    .card-value.red { color: #ea4335; }
+    .card-value.blue { color: #1a73e8; }
+    .actions { background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 24px; }
+    .actions h2 { font-size: 15px; margin-bottom: 12px; }
+    .actions form { display: inline-block; margin-right: 12px; }
+    button { background: #1a73e8; color: #fff; border: none; padding: 8px 18px; border-radius: 6px; font-size: 13px; cursor: pointer; }
+    button:hover { background: #1557b0; }
+    button.evening { background: #e94560; }
+    button.evening:hover { background: #c73e54; }
+    .toast { display: none; position: fixed; top: 16px; right: 16px; background: #34a853; color: #fff; padding: 12px 20px; border-radius: 6px; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>AI <span>HOT</span> Mail · 仪表盘</h1>
+    <div class="nav">
+      <a href="/logs">推送记录</a>
+      <a href="/data/morning">早报数据</a>
+      <a href="/data/evening">晚报数据</a>
+    </div>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-label">总推送</div>
+      <div class="card-value blue"><%= stats.total %></div>
+    </div>
+    <div class="card">
+      <div class="card-label">成功</div>
+      <div class="card-value green"><%= stats.success %></div>
+    </div>
+    <div class="card">
+      <div class="card-label">失败</div>
+      <div class="card-value red"><%= stats.failed %></div>
+    </div>
+    <div class="card">
+      <div class="card-label">最后推送</div>
+      <div class="card-value" style="font-size:14px;"><%= stats.lastPush || '—' %></div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <h2>手动触发</h2>
+    <form method="post" action="/trigger/morning" onsubmit="return trigger(this, '早报')">
+      <button type="submit">触发早报</button>
+    </form>
+    <form method="post" action="/trigger/evening" onsubmit="return trigger(this, '晚报')">
+      <button type="submit" class="evening">触发晚报</button>
+    </form>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    async function trigger(form, label) {
+      event.preventDefault();
+      const btn = form.querySelector('button');
+      btn.disabled = true;
+      btn.textContent = '发送中...';
+      try {
+        const res = await fetch(form.action, { method: 'POST' });
+        const data = await res.json();
+        showToast(`${label}: ${data.message}`, data.ok ? '#34a853' : '#ea4335');
+      } catch (e) {
+        showToast(`${label}: 请求失败`, '#ea4335');
+      }
+      btn.disabled = false;
+      btn.textContent = label === '早报' ? '触发早报' : '触发晚报';
+      return false;
+    }
+    function showToast(msg, color) {
+      const t = document.getElementById('toast');
+      t.style.display = 'block';
+      t.style.background = color;
+      t.textContent = msg;
+      setTimeout(() => t.style.display = 'none', 3000);
+    }
+  </script>
+</body>
+</html>

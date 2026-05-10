@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AIHOT Mail · Push Logs</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background: #f0f2f5; color: #333; padding: 24px; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .header h1 { font-size: 20px; }
+    .header h1 span { color: #e94560; }
+    .nav a { color: #1a73e8; text-decoration: none; font-size: 13px; margin-left: 12px; }
+    table { width: 100%; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.08); border-collapse: collapse; }
+    th { background: #fafafa; text-align: left; padding: 10px 14px; font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: .5px; border-bottom: 1px solid #eee; }
+    td { padding: 10px 14px; font-size: 13px; border-bottom: 1px solid #f5f5f5; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+    .badge.success { background: #e6f4ea; color: #34a853; }
+    .badge.failed { background: #fce8e6; color: #ea4335; }
+    .badge.morning { background: #e8f0fe; color: #1a73e8; }
+    .badge.evening { background: #fce8e6; color: #e94560; }
+    .err-msg { color: #ea4335; font-size: 12px; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pagination { margin-top: 16px; text-align: center; font-size: 13px; }
+    .pagination a { color: #1a73e8; text-decoration: none; margin: 0 8px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>AI <span>HOT</span> Mail · 推送记录</h1>
+    <div class="nav"><a href="/">← 返回仪表盘</a></div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>类型</th>
+        <th>日期</th>
+        <th>状态</th>
+        <th>条目</th>
+        <th>错误</th>
+        <th>时间</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (logs.length === 0) { %>
+        <tr><td colspan="7" style="text-align:center;color:#999;padding:30px;">暂无推送记录</td></tr>
+      <% } %>
+      <% logs.forEach(log => { %>
+        <tr>
+          <td><%= log.id %></td>
+          <td><span class="badge <%= log.push_type %>"><%= log.push_type === 'morning' ? '早报' : '晚报' %></span></td>
+          <td><%= log.push_date %></td>
+          <td><span class="badge <%= log.status %>"><%= log.status === 'success' ? '成功' : '失败' %></span></td>
+          <td><%= log.item_count %></td>
+          <td class="err-msg" title="<%= log.error_message || '' %>"><%= log.error_message || '—' %></td>
+          <td><%= log.pushed_at %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+
+  <div class="pagination">
+    <% if (page > 1) { %><a href="/logs?page=<%= page - 1 %>">上一页</a><% } %>
+    <span>第 <%= page %> 页</span>
+    <a href="/logs?page=<%= page + 1 %>">下一页</a>
+  </div>
+</body>
+</html>

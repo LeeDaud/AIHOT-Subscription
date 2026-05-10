@@ -29,16 +29,53 @@ export function initDatabase(dbPath: string): Database.Database {
       status        TEXT NOT NULL,
       item_count    INTEGER DEFAULT 0,
       error_message TEXT,
-      pushed_at     TEXT NOT NULL DEFAULT (datetime('now', '+8:00'))
+      pushed_at     TEXT NOT NULL DEFAULT (datetime('now', '+8 hours'))
     );
 
     CREATE TABLE IF NOT EXISTS fetch_cache (
       id            INTEGER PRIMARY KEY AUTOINCREMENT,
       cache_key     TEXT NOT NULL UNIQUE,
       data          TEXT NOT NULL,
-      fetched_at    TEXT NOT NULL DEFAULT (datetime('now', '+8:00'))
+      fetched_at    TEXT NOT NULL DEFAULT (datetime('now', '+8 hours'))
+    );
+
+    CREATE TABLE IF NOT EXISTS _schema_version (
+      version INTEGER NOT NULL
     );
   `);
+
+  // Migration: fix invalid DEFAULT syntax '+8:00' -> '+8 hours'
+  const ver = db.prepare('SELECT MAX(version) as v FROM _schema_version').get() as { v: number | null } | undefined;
+  if (!ver || ver.v === null || ver.v < 1) {
+    db.exec(`
+      DROP TABLE IF EXISTS push_logs_old;
+      ALTER TABLE push_logs RENAME TO push_logs_old;
+      CREATE TABLE push_logs (
+        id            INTEGER PRIMARY KEY AUTOINCREMENT,
+        push_type     TEXT NOT NULL,
+        push_date     TEXT NOT NULL,
+        status        TEXT NOT NULL,
+        item_count    INTEGER DEFAULT 0,
+        error_message TEXT,
+        pushed_at     TEXT NOT NULL DEFAULT (datetime('now', '+8 hours'))
+      );
+      INSERT INTO push_logs SELECT * FROM push_logs_old;
+      DROP TABLE push_logs_old;
+
+      DROP TABLE IF EXISTS fetch_cache_old;
+      ALTER TABLE fetch_cache RENAME TO fetch_cache_old;
+      CREATE TABLE fetch_cache (
+        id            INTEGER PRIMARY KEY AUTOINCREMENT,
+        cache_key     TEXT NOT NULL UNIQUE,
+        data          TEXT NOT NULL,
+        fetched_at    TEXT NOT NULL DEFAULT (datetime('now', '+8 hours'))
+      );
+      INSERT INTO fetch_cache SELECT * FROM fetch_cache_old;
+      DROP TABLE fetch_cache_old;
+
+      INSERT INTO _schema_version (version) VALUES (1);
+    `);
+  }
 
   return db;
 }
@@ -71,7 +108,7 @@ export function getPushLogStats(db: Database.Database): { total: number; success
 export function upsertFetchCache(db: Database.Database, key: string, data: object): void {
   const stmt = db.prepare(`
     INSERT INTO fetch_cache (cache_key, data) VALUES (?, ?)
-    ON CONFLICT(cache_key) DO UPDATE SET data = excluded.data, fetched_at = datetime('now', '+8:00')
+    ON CONFLICT(cache_key) DO UPDATE SET data = excluded.data, fetched_at = datetime('now', '+8 hours')
   `);
   stmt.run(key, JSON.stringify(data));
 }

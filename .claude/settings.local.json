@@ -15,7 +15,10 @@
       "Bash(node *)",
       "Bash(npx tsx *)",
       "Bash(kill %1)",
-      "Bash(ssh *)"
+      "Bash(ssh *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)"
     ]
   }
 }

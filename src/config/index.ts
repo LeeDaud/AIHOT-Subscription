@@ -27,7 +27,7 @@ export function loadConfig(): AppConfig {
       to: process.env.MAIL_TO!.split(',').map(s => s.trim()),
     },
     cron: {
-      morning: process.env.CRON_MORNING || '30 8 * * *',
+      morning: process.env.CRON_MORNING || '0 8 * * *',
       evening: process.env.CRON_EVENING || '0 20 * * *',
       timezone: process.env.CRON_TZ || 'Asia/Shanghai',
     },

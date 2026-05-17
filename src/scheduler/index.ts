@@ -12,7 +12,7 @@ export function startScheduler(db: Database.Database, transporter: nodemailer.Tr
     } catch (err) {
       console.error('[Scheduler] Morning push failed:', err);
     }
-  });
+  }, { timezone: config.cron.timezone });
 
   cron.schedule(config.cron.evening, async () => {
     console.log(`[Scheduler] Evening push at ${new Date().toISOString()}`);
@@ -22,5 +22,5 @@ export function startScheduler(db: Database.Database, transporter: nodemailer.Tr
     } catch (err) {
       console.error('[Scheduler] Evening push failed:', err);
     }
-  });
+  }, { timezone: config.cron.timezone });
 }

@@ -3,7 +3,7 @@ import { SmtpConfig } from '../mail/transporter.js';
 export interface AppConfig {
   smtp: SmtpConfig;
   mail: { to: string[] };
-  cron: { morning: string; evening: string };
+  cron: { morning: string; evening: string; timezone: string };
   api: { baseUrl: string; userAgent: string };
   admin: { port: number; user: string; pass: string };
   db: { path: string };
@@ -29,6 +29,7 @@ export function loadConfig(): AppConfig {
     cron: {
       morning: process.env.CRON_MORNING || '30 8 * * *',
       evening: process.env.CRON_EVENING || '0 20 * * *',
+      timezone: process.env.CRON_TZ || 'Asia/Shanghai',
     },
     api: {
       baseUrl: process.env.API_BASE_URL || 'https://aihot.virxact.com',

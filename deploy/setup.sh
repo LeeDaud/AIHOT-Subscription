@@ -42,6 +42,7 @@ SMTP_SECURE=true
 SMTP_USER=your_email@qq.com
 SMTP_PASS=your_smtp_authorization_code
 MAIL_TO=your_email@qq.com
+CRON_TZ=Asia/Shanghai
 CRON_MORNING=30 8 * * *
 CRON_EVENING=0 20 * * *
 API_BASE_URL=https://aihot.virxact.com
